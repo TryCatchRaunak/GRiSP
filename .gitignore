@@ -1,2 +1,5 @@
 .env
 *.json
+/data
+/memory
+/tools/setup_data.py
