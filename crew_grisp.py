@@ -1,6 +1,6 @@
 import os
 import yaml
-from crewai import Agent, Task, Crew, LLM, CrewMemory
+from crewai import Agent, Task, Crew, LLM
 from tools.climate_api_tool import ClimateApiTool
 from tools.global_terrorism_database_scraper import GlobalTerrorismDatabaseTool
 from tools.google_search_tool import GoogleSearchTool
@@ -61,7 +61,7 @@ def load_tasks(folder="tasks"):
                 agent_name = data["agent"]
                 task = Task(
                     description=data["description"],
-                    agent=agent_map.get(agent_name),  # link Agent object
+                    agent=agent_map.get(agent_name),
                     expected_output=data["expected_output"],
                     tools=[TOOL_MAP[t] for t in data.get("tools", [])],
                     verbose=True
@@ -73,15 +73,16 @@ def load_tasks(folder="tasks"):
 agents = load_agents("agents")
 tasks = load_tasks("tasks")
 
-# Use CrewMemory for persistence
-memory = CrewMemory(file_path="memory/shared_memory.json")
-
 # Create Crew
-crew = Crew(
-    agents=agents,
-    tasks=tasks,
-    memory=memory,
-    output_file="reports/final_report.md",
-    verbose=True,
-    llm=llm
-)
+def callCrew():
+    crew = Crew(
+        agents=agents,
+        tasks=tasks,
+        memory=True,
+        memory_path="memory/shared_memory.json",
+        output_file="reports/final_report.md",
+        verbose=True,
+        llm=llm
+    )
+
+    return crew

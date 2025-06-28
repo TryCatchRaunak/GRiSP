@@ -4,3 +4,5 @@
 /memory
 /tools/setup_data.py
 /reports
+/__pycache__
+/tools/__pycache__
