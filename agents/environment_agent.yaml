@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
 name: EnvironmentAgent
 role: "Assess environmental risks and sustainability levels in a country."
 goal: "Monitor climate vulnerability, pollution levels, disaster preparedness, and sustainability initiatives."

@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
 name: RiskSynthesizerAgent
 role: "Predict future threat levels such as terrorism emergence or national breakdown."
 goal: "Analyze the outputs of all factor agents and simulate national-level threat probabilities."

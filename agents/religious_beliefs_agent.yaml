@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
 name: ReligiousBeliefsAgent
 role: "Detect signs of religious tension, harmony, or ideological extremism."
 goal: "Assess freedom of religion, persecution, and inter-religious conflict indicators in a country."

@@ -1,30 +1,29 @@
 crew:
-  name: GRiSP Crew
-  description: |
-    A crew of agents that collaboratively assess a country's stability and risk
-    based on economics, security, politics, religion, sentiment, environment, and more.
+  name: GRiSP — Global Risk and Stability Predictor
+  description: A Crew of specialized agents that collaboratively gather, analyze, and synthesize multi-domain data to predict a nation's stability and risk levels.
 
   agents:
-    - EconomicAgent
-    - SecurityAgent
-    - TechnologyAgent
-    - PoliticalStabilityAgent
-    - InfrastructureAgent
-    - GrowthAgent
-    - ReligiousBeliefsAgent
-    - SentimentAgent
-    - SocietyMindsetAgent
-    - EnvironmentAgent
-    - LLIIndexAgent
-    - RiskSynthesizerAgent
+    - ./agents/economic_agent.yaml
+    - ./agents/environment_agent.yaml
+    - ./agents/growth_agent.yaml
+    - ./agents/infrastucture_agent.yaml
+    - ./agents/lli_index_agent.yaml
+    - ./agents/political_agent.yaml
+    - ./agents/religious_beliefs_agent.yaml
+    - ./agents/risk_synthesizer_agent.yaml
+    - ./agents/security_agent.yaml
+    - ./agents/sentiment_agent.yaml
+    - ./agents/societal_mindset_agent.yaml
+    - ./agents/technology_agent.yaml
 
   tasks:
-    - fetch_data
-    - analyze_and_score
-    - generate_summary
-    - compute_lli_index
-    - synthesize_risk
+    - ./tasks/fetch_data.yaml
+    - ./tasks/analyze_and_score.yaml
+    - ./tasks/synthesize_risk.yaml
+    - ./tasks/compute_lli_index.yaml
+    - ./tasks/generate_summary.yaml
 
-  memory: shared_memory
-  verbose: true
-  output_file: final_output.md
+  memory:
+    file: memory/shared_memory.json
+
+  output_file: reports/final_report.md

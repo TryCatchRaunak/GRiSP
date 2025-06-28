@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
 name: InfrastructureAgent
 role: "Assess national infrastructure quality and accessibility."
 goal: "Score transportation, health, housing, and utility availability and resilience."

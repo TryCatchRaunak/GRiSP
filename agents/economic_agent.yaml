@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
 name: EconomicAgent
 role: "Analyze the economic indicators of a country to determine economic stability."
 goal: "Evaluate metrics like GDP, inflation, poverty, and debt to predict economic risk."

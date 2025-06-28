@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
 name: PoliticalStabilityAgent
 role: "Evaluate political stability, governance quality, and civil liberties."
 goal: "Determine if a country is politically stable or at risk of corruption, authoritarianism, or unrest."
