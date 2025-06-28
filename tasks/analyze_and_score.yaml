@@ -1,12 +1,11 @@
 # yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
-name: analyze_and_score
-description: "Analyze the collected data and assign a normalized score (0-100) reflecting the factor's stability or risk level."
+description: Analyze the collected data and assign a normalized score (0-100) reflecting the factor's stability or risk level.
 agent: $AGENT_NAME
 expected_output: |
   {
     "score": <integer>, 
-    "confidence": <0.0-1.0>, 
+    "confidence": <float between 0.0 and 1.0>, 
     "explanation": "Short interpretive summary of the findings",
-    "sources": [<link1>, <link2>]
+    "sources": ["<source_link_1>", "<source_link_2>"]
   }
 tools: []

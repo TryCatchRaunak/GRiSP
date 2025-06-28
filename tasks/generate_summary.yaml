@@ -1,6 +1,5 @@
 # yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
-name: generate_summary
-description: "Generate a human-friendly narrative summary of the analysis and score for reporting."
+description: Generate a human-friendly narrative summary of the analysis and score for reporting.
 agent: $AGENT_NAME
 expected_output: |
   A plain-English explanation of:

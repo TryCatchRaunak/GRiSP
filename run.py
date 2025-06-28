@@ -1,30 +1,30 @@
 import os
-from crewai import Crew
-from dotenv import load_dotenv
 import datetime
+from dotenv import load_dotenv
 
-# Load .env variables (API keys, etc.)
+# Load env vars
 load_dotenv()
 
-# Ensure 'reports' folder exists
+# Import the crew instance from crew.py (not from_yaml anymore!)
+from crew import crew
+
+# Ensure output directory exists
 os.makedirs("reports", exist_ok=True)
 
 def run_grisp_pipeline():
-    # Load Crew and YAML config
     print("\n🧠 Initializing GRiSP — Global Risk & Stability Predictor...")
-    crew = Crew.from_yaml("crew.yaml")
 
-    # Kickoff pipeline
+    # Kickoff CrewAI execution
     print("\n🚀 Running full risk and stability analysis...\n")
     result = crew.kickoff()
 
-    # Generate output file
+    # Save output with timestamp
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
     report_path = f"reports/final_report_{timestamp}.md"
     with open(report_path, "w", encoding="utf-8") as f:
         f.write(result)
 
-    # Display result summary
+    # Show summary preview
     print("\n✅ GRiSP Report Generated!")
     print(f"📄 Saved to: {report_path}")
     print("\n📊 Summary Preview:\n")

@@ -1,4 +1,4 @@
-crewai
+crewai>=0.21.0
 crewai_tools
 requests
 python-dotenv
@@ -6,3 +6,4 @@ pandas
 torch
 nltk
 openpyxl
+pyyaml

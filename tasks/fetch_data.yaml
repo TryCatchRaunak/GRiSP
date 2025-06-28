@@ -1,6 +1,7 @@
 # yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
-name: fetch_data
-description: "Collect relevant data points and sources for the assigned national factor using tools or APIs."
+description: Collect relevant data points and sources for the assigned national factor using tools or APIs.
 agent: $AGENT_NAME
-expected_output: "Raw or preprocessed data in a structured format (e.g., JSON, dict), including source metadata."
-tools: [search_tool, document_reader]
+expected_output: Raw or preprocessed data in a structured format (e.g., JSON, dict), including source metadata.
+tools:
+  - GoogleSearchTool
+  - DocumentReaderTool

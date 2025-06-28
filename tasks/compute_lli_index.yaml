@@ -1,11 +1,10 @@
 # yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
-name: compute_lli_index
-description: "Aggregate all normalized scores into a final Living Likeliness Index using weighted averages or rule-based logic."
-agent: LLIIndexAgent
+description: Aggregate all normalized scores into a final Living Likeliness Index using weighted averages or rule-based logic.
+agent: LLI Index Synthesizer
 expected_output: |
   {
     "LLI_index": <0-100>,
     "explanation": "What drove the index value",
-    "comparative_rank": "<Percentile/benchmark against known countries>"
+    "comparative_rank": "<Percentile or benchmark against known countries>"
   }
 tools: []
