@@ -1,0 +1,9 @@
+{
+"yaml.schemas": {
+  "": [
+    "*/Global_Risk_and_Stability_Predictor/agents/*.yaml",
+    "*/Global_Risk_and_Stability_Predictor/tasks/*.yaml"
+  ]
+}
+
+}

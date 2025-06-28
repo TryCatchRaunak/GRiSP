@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
+name: synthesize_risk
+description: "Evaluate all factor-level outputs and predict the risk of future national instability or terrorism emergence."
+agent: RiskSynthesizerAgent
+expected_output: |
+  {
+    "terrorism_risk_score": <0–100>,
+    "risk_level": "Low | Medium | High",
+    "reasoning": "What combination of factors led to this conclusion"
+  }
+tools: []
