@@ -23,6 +23,12 @@ crew:
     - ./tasks/compute_lli_index.yaml
     - ./tasks/generate_summary.yaml
 
+  llm_config:
+    provider: google
+    model: gemini-2.5-flash-preview-04-17
+    temperature: 0.3
+    api_key: ${GEMINI_API_KEY}
+
   memory:
     file: memory/shared_memory.json
 
