@@ -1,43 +1,63 @@
 import os
 import requests
 import nltk
-from nltk.sentiment import SentimentIntensityAnalyzer
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from crewai.tools import BaseTool
 from dotenv import load_dotenv
-from typing import ClassVar
+from typing import Optional # Import Optional, as ClassVar is not needed for instance attributes
 
+# Load environment variables at the top-most level as soon as possible
+load_dotenv()
+
+# --- NLTK VADER Lexicon Download Logic ---
 # Ensure VADER lexicon is downloaded
-# We will explicitly call download and then check with data.find
 try:
     # First, try to download (it will skip if already downloaded)
     nltk.download('vader_lexicon', quiet=True) 
     # Then, verify it's found (this is what was failing before)
     nltk.data.find('sentiment/vader_lexicon.zip')
-except LookupError: # Use LookupError directly
+except LookupError: # Use LookupError directly for missing data
     print("VADER Lexicon not found after download attempt. Please run 'python -m nltk.downloader vader_lexicon' manually if issues persist.")
-    # You might want to raise an error or exit here if the lexicon is absolutely critical
-    # raise
-
-
-# Load environment variables
-load_dotenv()
+    # It's usually good practice to exit or raise a hard error if a critical dependency isn;t met
+    # For now, we'll let it continue, but the tool might fail if `analyzer` cannot be initialized
+# --- End NLTK VADER Lexicon Download Logic ---
 
 
 class TwitterSentimentTool(BaseTool):
-    # Add type annotations to 'name' and 'description'
-    name: ClassVar[str] = "TwitterSentimentTool"
-    description: ClassVar[str] = "Fetches recent tweets based on a query and performs sentiment analysis."
+    # These are Pydantic fields. They should be instance attributes for CrewAI tools.
+    # 'name' and 'description' are standard for BaseTool.
+    name: str = "TwitterSentimentTool"
+    description: str = (
+        "Fetches recent tweets based on a query and performs sentiment analysis. "
+        "Returns a detailed sentiment breakdown (Positive, Neutral, Negative counts and percentages)."
+    )
 
-    def __init__(self):
-        super().__init__()
+    # Declare instance attributes as Pydantic fields.
+    # They are initialized to Optional[type] = None because they are set within __init__.
+    analyzer: Optional[SentimentIntensityAnalyzer] = None
+    bearer_token: Optional[str] = None
+    
+    # base_url can remain a class attribute if it's constant for all instances
+    base_url: str = "https://api.twitter.com/2/tweets/search/recent"
+
+    def __init__(self, **kwargs):
+        # Always call the parent's __init__ method for BaseTool.
+        # This handles Pydantic field initialization based on any kwargs passed to the constructor.
+        super().__init__(**kwargs) 
+        
+        # Initialize instance-specific attributes here
         self.analyzer = SentimentIntensityAnalyzer()
         self.bearer_token = os.getenv("TWITTER_BEARER_TOKEN")
 
-        # Optional: Add a check for the bearer token
+        # Add robust checks for critical dependencies
+        if self.analyzer is None:
+            raise RuntimeError("NLTK SentimentIntensityAnalyzer could not be initialized. VADER lexicon might be missing.")
         if not self.bearer_token:
-            print("Warning: TWITTER_BEARER_TOKEN environment variable not set. Twitter API calls will fail.")
+            # Raise an error to prevent tool from being used without token
+            raise ValueError("TWITTER_BEARER_TOKEN environment variable not set. Twitter API calls will fail.")
 
     def _fetch_tweets(self, query: str, max_results: int = 10) -> list:
+        # Ensure token is present before making API call
         if not self.bearer_token:
             return ["Error: Twitter Bearer Token is missing. Please set the 'TWITTER_BEARER_TOKEN' environment variable."]
 
@@ -45,15 +65,14 @@ class TwitterSentimentTool(BaseTool):
             "Authorization": f"Bearer {self.bearer_token}"
         }
 
-        search_url = "https://api.twitter.com/2/tweets/search/recent"
         params = {
             "query": query,
             "max_results": max_results,
-            "tweet.fields": "text,lang",
+            "tweet.fields": "text,lang", # Request text and language
         }
 
         try:
-            response = requests.get(search_url, headers=headers, params=params)
+            response = requests.get(self.base_url, headers=headers, params=params)
             response.raise_for_status() # Raise an HTTPError for bad responses (4xx or 5xx)
             data = response.json()
 
@@ -67,7 +86,8 @@ class TwitterSentimentTool(BaseTool):
                 return [f"No recent tweets found for query: '{query}'."]
 
             # Filter for English tweets and return text
-            return [tweet["text"] for tweet in data["data"] if tweet.get("lang") == "en"]
+            # Ensure 'text' and 'lang' keys exist before accessing
+            return [tweet["text"] for tweet in data["data"] if tweet.get("lang") == "en" and tweet.get("text")]
 
         except requests.exceptions.RequestException as e:
             return [f"Network or API error while fetching tweets for query '{query}': {str(e)}"]
@@ -75,9 +95,13 @@ class TwitterSentimentTool(BaseTool):
             return [f"An unexpected error occurred while fetching tweets for query '{query}': {str(e)}"]
 
     def _run(self, query: str) -> str:
+        # Check if analyzer is initialized before using it
+        if self.analyzer is None:
+            return "Error: Sentiment analyzer is not initialized. Cannot perform sentiment analysis."
+            
         tweets = self._fetch_tweets(query)
         
-        # Check if the result from _fetch_tweets is an error message
+        # Check if the result from _fetch_tweets is an error message (list containing one error string)
         if not tweets or (isinstance(tweets, list) and tweets and "Error:" in tweets[0]):
             return tweets[0] # Return the error message
 

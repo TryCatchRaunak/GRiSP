@@ -4,4 +4,3 @@ agent: $AGENT_NAME
 expected_output: Raw or preprocessed data in a structured format (e.g., JSON, dict), including source metadata.
 tools:
   - GoogleSearchTool
-  - DocumentReaderTool

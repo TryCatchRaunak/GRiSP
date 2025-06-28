@@ -1,54 +1,76 @@
 import os
 import requests
 from crewai.tools import BaseTool
-from dotenv import load_dotenv
-from typing import ClassVar # Import ClassVar
-
-load_dotenv()
+from typing import Optional # Import Optional for fields that might be None initially
 
 class GoogleSearchTool(BaseTool):
-    # Add type annotations to 'name' and 'description'
-    name: ClassVar[str] = "GoogleSearchTool"
-    description: ClassVar[str] = "Performs a Google Custom Search and returns a summary of top results for a given query."
+    name: str = "GoogleSearchTool"
+    description: str = (
+        "Performs a Google search and returns a snippet of the top results. "
+        "Useful for getting real-time information or validating facts. "
+        "Input should be a concise search query string."
+    )
 
-    def __init__(self):
-        super().__init__()
+    # Declare api_key and cx_id as optional Pydantic fields.
+    # They will be loaded from environment variables in __init__.
+    # Pydantic requires all instance attributes set in __init__
+    # (that aren't part of the constructor's arguments) to be declared here.
+    api_key: Optional[str] = None
+    cx_id: Optional[str] = None
+
+    def __init__(self, **kwargs):
+        # Always call the parent's __init__ when inheriting from BaseTool
+        # to ensure Pydantic fields are correctly initialized.
+        super().__init__(**kwargs)
+        
+        # Load API key and CX ID from environment variables
         self.api_key = os.getenv("GOOGLE_API_KEY")
-        self.cx_id = os.getenv("CX_ID")
+        self.cx_id = os.getenv("GOOGLE_CX_ID")
 
-        # Optional: Add checks for environment variables
+        # Add checks to ensure keys are loaded, as the tool won't work without them.
         if not self.api_key:
-            raise ValueError("GOOGLE_API_KEY environment variable not set.")
+            # Raise a more informative error specific to missing env var
+            raise ValueError("GOOGLE_API_KEY environment variable not set. Please set it before running.")
         if not self.cx_id:
-            raise ValueError("CX_ID environment variable not set.")
+            # Raise a more informative error specific to missing env var
+            raise ValueError("GOOGLE_CX_ID environment variable not set. Please set it before running.")
 
     def _run(self, query: str) -> str:
-        url = "https://www.googleapis.com/customsearch/v1"
+        """
+        Performs a Google Custom Search for the given query.
+        Input: query (str) - the search query
+        """
+        # Defensive check in _run in case __init__ somehow failed to set them (though it raises errors now)
+        if not self.api_key or not self.cx_id:
+            return "Error: Google Search API keys are not properly configured. Cannot perform search."
+
+        search_url = "https://www.googleapis.com/customsearch/v1"
         params = {
             "key": self.api_key,
-            "cx": self.cx_id,
-            "q": query,
-            "num": 5
+            "cx": self.cx_id, # This will now be the ID without a colon, as per your screenshot
+            "q": query
         }
 
         try:
-            response = requests.get(url, params=params)
-            response.raise_for_status() # Raise an HTTPError for bad responses (4xx or 5xx)
-            data = response.json()
+            response = requests.get(search_url, params=params)
+            response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+            search_results = response.json()
 
-            if "items" not in data or not data["items"]: # Also check if items list is empty
-                return f"No search results found for: {query}"
+            if "items" not in search_results:
+                # This can happen if no results are found or if the API key/CX ID is invalid
+                return "No relevant Google search results found for your query or an API issue occurred (e.g., invalid key/CX ID, quota exceeded)."
 
-            summaries = []
-            for item in data["items"]:
-                title = item.get("title", "No Title")
-                snippet = item.get("snippet", "No Description")
-                link = item.get("link", "")
-                summaries.append(f"- **{title}**: {snippet}\n  🔗 {link}") # Changed indent to 2 spaces
-
-            return f"🔍 Top Search Results for '{query}':\n" + "\n\n".join(summaries)
+            snippets = []
+            for item in search_results["items"][:3]: # Get top 3 snippets
+                snippet = item.get("snippet", "No snippet available.")
+                link = item.get("link", "No link available.")
+                snippets.append(f"Snippet: {snippet}\nLink: {link}")
+            
+            return "\n\n".join(snippets)
 
         except requests.exceptions.RequestException as e:
-            return f"Network or API error during search for query '{query}': {str(e)}"
+            # Catch network-related errors or bad HTTP responses
+            return f"Error during Google Search API request: {e}. Check network connection or API key/CX ID."
         except Exception as e:
-            return f"An unexpected error occurred during search for query '{query}': {str(e)}"
+            # Catch any other unexpected errors
+            return f"An unexpected error occurred during Google Search: {e}"

@@ -1,30 +1,64 @@
 import pandas as pd
 from crewai.tools import BaseTool
-from typing import ClassVar # Import ClassVar for class-level attributes
+from typing import Optional # Import Optional
 
 class ClimateApiTool(BaseTool):
-    # Add type annotations to 'name' and 'description'
-    # Use ClassVar if these are meant to be constant for all instances
-    name: ClassVar[str] = "ClimateApiTool"
-    description: ClassVar[str] = "Fetches climate vulnerability and readiness score from ND-GAIN index for a given country."
+    name: str = "ClimateApiTool"
+    description: str = (
+        "Fetches climate vulnerability and readiness score from ND-GAIN index "
+        "for a given country. Input should be a country name (e.g., 'India')."
+    )
 
-    def __init__(self, csv_path: str = None): # Add type hint for csv_path
-        super().__init__()
-        # Default path if none is provided
-        self.csv_path = csv_path or "data/static_reports/ndgain.csv"
+    excel_path: str = "data/static_reports/ndgain.xlsx" 
+    
+    # Declare 'df' as an optional field of type pandas.DataFrame
+    # It will be initialized to None by default, and then populated in __init__
+    df: Optional[pd.DataFrame] = None 
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs) 
+        
         try:
-            self.df = pd.read_csv(self.csv_path)
+            # IMPORTANT: Replace 'ndgain' with your actual sheet name if it's different.
+            # If your data is on the first sheet and you don't know its name, use sheet_name=0
+            self.df = pd.read_excel(self.excel_path, sheet_name='ndgain') 
+            
         except FileNotFoundError:
-            raise FileNotFoundError(f"Error: The CSV file was not found at {self.csv_path}. Please ensure the path is correct.")
+            raise FileNotFoundError(
+                f"Error: The Excel file was not found at {self.excel_path}. "
+                "Please ensure the path is correct and the 'data/static_reports' directory exists. "
+                "Also, confirm you've saved 'ndgain.csv' as 'ndgain.xlsx'."
+            )
+        except ValueError as e: # Catch ValueError specifically for sheet not found
+            if "Worksheet named" in str(e) and "not found" in str(e):
+                raise ValueError(
+                    f"Error: The sheet named 'ndgain' was not found in '{self.excel_path}'. "
+                    "Please open the Excel file and provide the exact sheet name, or use sheet_name=0 for the first sheet."
+                )
+            else:
+                raise Exception(f"An unexpected ValueError occurred while reading the Excel file: {e}")
         except Exception as e:
-            raise Exception(f"An error occurred while reading the CSV file: {e}")
+            raise Exception(f"An unexpected error occurred while reading the Excel file: {e}")
 
     def _run(self, country: str) -> str:
-        row = self.df[self.df["Country"].str.lower() == country.lower()] # Case-insensitive country match
+        """
+        Fetches climate vulnerability and readiness score for a given country.
+        Input: country name (e.g., 'India')
+        """
+        # Ensure that df is not None before proceeding
+        if self.df is None:
+            return "Error: Climate data could not be loaded. Please check the Excel file path and content."
+
+        # Ensure country matching is case-insensitive
+        row = self.df[self.df["Country"].str.lower() == country.lower()]
+        
         if row.empty:
             return f"No data found for {country} in ND-GAIN dataset."
 
+        # Get the first matching row
         row = row.iloc[0]
+
+        # Format the output string
         return (
             f"Climate Risk Score for {country}:\n"
             f"- ND-GAIN Index: {row['ND-GAIN Index']}\n"

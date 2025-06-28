@@ -8,8 +8,8 @@ load_dotenv()
 
 class NewsApiTool(BaseTool):
     # Add type annotations to 'name' and 'description'
-    name: ClassVar[str] = "NewsApiTool"
-    description: ClassVar[str] = "Fetches the latest news headlines and summaries related to a country's events for sentiment and security analysis."
+    name: str = "NewsApiTool"
+    description: str = "Fetches the latest news headlines and summaries related to a country's events for sentiment and security analysis."
 
     def _run(self, query: str) -> str:
         api_key = os.getenv("NEWSAPI_KEY")

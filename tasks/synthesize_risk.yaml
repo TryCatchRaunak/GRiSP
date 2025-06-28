@@ -3,7 +3,7 @@ description: Evaluate all factor-level outputs and predict the risk of future na
 agent: Risk Synthesizer
 expected_output: |
   {
-    "terrorism_risk_score": <0–100>,
+    "terrorism_risk_score": <0-100>,
     "risk_level": "Low | Medium | High",
     "reasoning": "What combination of factors led to this conclusion"
   }
