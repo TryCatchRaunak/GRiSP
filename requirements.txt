@@ -1,2 +1,7 @@
 crewai
 crewai_tools
+requests
+python-dotenv
+pandas
+torch
+nltk

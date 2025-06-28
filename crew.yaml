@@ -1,2 +1,30 @@
-from crewai import Crew, Agent, Task
-from crewai_tools import 
+crew:
+  name: GRiSP Crew
+  description: |
+    A crew of agents that collaboratively assess a country's stability and risk
+    based on economics, security, politics, religion, sentiment, environment, and more.
+
+  agents:
+    - EconomicAgent
+    - SecurityAgent
+    - TechnologyAgent
+    - PoliticalStabilityAgent
+    - InfrastructureAgent
+    - GrowthAgent
+    - ReligiousBeliefsAgent
+    - SentimentAgent
+    - SocietyMindsetAgent
+    - EnvironmentAgent
+    - LLIIndexAgent
+    - RiskSynthesizerAgent
+
+  tasks:
+    - fetch_data
+    - analyze_and_score
+    - generate_summary
+    - compute_lli_index
+    - synthesize_risk
+
+  memory: shared_memory
+  verbose: true
+  output_file: final_output.md
